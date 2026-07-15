@@ -19,7 +19,7 @@ export function ProtectedLayout({ children }: { children: React.ReactNode }) {
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     )
   }
@@ -29,11 +29,11 @@ export function ProtectedLayout({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <>
+    <div className="flex flex-col h-screen w-screen overflow-hidden bg-background text-foreground">
       <Topbar />
-      <main className="bg-background min-h-screen">
+      <main className="flex-1 overflow-y-auto min-h-0 bg-background">
         {children}
       </main>
-    </>
+    </div>
   )
 }

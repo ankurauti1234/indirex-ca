@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useSearchParams } from 'next/navigation'
 import { EventFilters, type FilterState } from '@/components/event-filters-new'
 import { EventsTable } from '@/components/events-table'
 import { ScalablePagination } from '@/components/scalable-pagination'
@@ -10,7 +10,6 @@ import { ProtectedLayout } from '@/components/protected-layout'
 import type { PaginatedResponse } from '@/lib/types'
 
 function EventsPageContent() {
-  const router = useRouter()
   const searchParams = useSearchParams()
   const [data, setData] = useState<PaginatedResponse>({
     events: [],
@@ -19,7 +18,6 @@ function EventsPageContent() {
     pageSize: 25,
   })
   const [isLoading, setIsLoading] = useState(true)
-  const [hasAppliedFilters, setHasAppliedFilters] = useState(false)
   const [filters, setFilters] = useState<FilterState>({
     search: '',
     type: 'all',
@@ -66,12 +64,10 @@ function EventsPageContent() {
   )
 
   const handleApplyFilters = useCallback(() => {
-    setHasAppliedFilters(true)
     fetchEvents(1, data.pageSize, filters)
   }, [fetchEvents, filters, data.pageSize])
 
   const handleResetFilters = useCallback(() => {
-    setHasAppliedFilters(false)
     const resetFilters = {
       search: '',
       type: 'all',
@@ -91,7 +87,6 @@ function EventsPageContent() {
       endDate: searchParams.get('endDate') || '',
     }
     setFilters(newFilters)
-    setHasAppliedFilters(Object.values(newFilters).some(v => v !== '' && v !== 'all'))
   }, [searchParams])
 
   // Load events on mount (default with no filters)
@@ -111,16 +106,18 @@ function EventsPageContent() {
   }
 
   return (
-    <div className="flex flex-col gap-6 mx-auto max-w-7xl px-4 sm:px-6 py-6">
+    <div className="flex flex-col min-h-full bg-background">
       {/* Header */}
-      <div className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-foreground">Events</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Monitor and analyze events from wearable devices
-          </p>
+      <div className="py-6 px-6 border-b border-border/50 bg-background">
+        <div className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
+          <div>
+            <h1 className="text-xl font-semibold tracking-tight text-foreground">Events</h1>
+            <p className="mt-0.5 text-xs text-muted-foreground">
+              Monitor and analyze events from wearable devices
+            </p>
+          </div>
+          <AutoRefreshControl onRefresh={() => fetchEvents(data.page, data.pageSize)} isLoading={isLoading} />
         </div>
-        <AutoRefreshControl onRefresh={() => fetchEvents(data.page, data.pageSize)} isLoading={isLoading} />
       </div>
 
       {/* Filters */}
@@ -129,21 +126,24 @@ function EventsPageContent() {
         isLoading={isLoading}
         onApply={handleApplyFilters}
         onReset={handleResetFilters}
-        hasAppliedFilters={hasAppliedFilters}
       />
 
       {/* Table */}
-      <EventsTable data={data} isLoading={isLoading} />
+      <div className="flex-1 overflow-x-auto">
+        <EventsTable data={data} isLoading={isLoading} />
+      </div>
 
       {/* Pagination */}
-      <ScalablePagination
-        page={data.page}
-        pageSize={data.pageSize}
-        total={data.total}
-        onPageChange={handlePageChange}
-        onPageSizeChange={handlePageSizeChange}
-        isLoading={isLoading}
-      />
+      <div className="px-6 py-2 border-t border-border/50 bg-background">
+        <ScalablePagination
+          page={data.page}
+          pageSize={data.pageSize}
+          total={data.total}
+          onPageChange={handlePageChange}
+          onPageSizeChange={handlePageSizeChange}
+          isLoading={isLoading}
+        />
+      </div>
     </div>
   )
 }

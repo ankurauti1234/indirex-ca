@@ -1,5 +1,5 @@
 import { supabase } from '@/lib/supabase-server'
-import type { EventType, PaginatedResponse } from '@/lib/types'
+import type { PaginatedResponse } from '@/lib/types'
 import { NextRequest, NextResponse } from 'next/server'
 
 export async function GET(request: NextRequest) {
