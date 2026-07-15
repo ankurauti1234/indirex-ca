@@ -9,7 +9,11 @@ interface AutoRefreshControlProps {
   isLoading?: boolean
 }
 
-export function AutoRefreshControl({ onRefresh, isLoading = false }: AutoRefreshControlProps) {
+export function AutoRefreshControl({
+  onRefresh,
+  isLoading = false,
+  compact = false,
+}: AutoRefreshControlProps & { compact?: boolean }) {
   const [selectedInterval, setSelectedInterval] = useState<'off' | '10s' | '30s' | '1m' | '5m'>('off')
   const [timeLeft, setTimeLeft] = useState<number | null>(null)
 
@@ -51,6 +55,36 @@ export function AutoRefreshControl({ onRefresh, isLoading = false }: AutoRefresh
     if (!timeLeft) return ''
     const seconds = Math.ceil(timeLeft / 1000)
     return `(${seconds}s)`
+  }
+
+  if (compact) {
+    return (
+      <div className="flex items-center gap-1.5 select-none">
+        {timeLeft && (
+          <span className="text-[10px] text-muted-foreground/60 font-mono w-6 text-right">
+            {Math.ceil(timeLeft / 1000)}s
+          </span>
+        )}
+        <Select value={selectedInterval} onValueChange={(value) => setSelectedInterval(value as 'off' | '10s' | '30s' | '1m' | '5m')} disabled={isLoading}>
+          <SelectTrigger className="h-8 w-fit text-xs bg-background border border-border text-muted-foreground hover:text-foreground flex items-center justify-between">
+            <span className="text-xs">
+              {selectedInterval === 'off' && 'Refresh: Off'}
+              {selectedInterval === '10s' && '10s'}
+              {selectedInterval === '30s' && '30s'}
+              {selectedInterval === '1m' && '1m'}
+              {selectedInterval === '5m' && '5m'}
+            </span>
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="off">Refresh: Off</SelectItem>
+            <SelectItem value="10s">Every 10s</SelectItem>
+            <SelectItem value="30s">Every 30s</SelectItem>
+            <SelectItem value="1m">Every 1 min</SelectItem>
+            <SelectItem value="5m">Every 5 min</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+    )
   }
 
   return (

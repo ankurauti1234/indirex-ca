@@ -12,35 +12,32 @@ interface EventsTableProps {
 export function EventsTable({ data, isLoading }: EventsTableProps) {
   if (isLoading) {
     return (
-      <div className="w-full bg-muted/5">
-        <Table>
+      <div className="w-full bg-muted/5 border border-border/60 rounded-md overflow-hidden">
+        <Table className="border-collapse">
           <TableHeader>
-            <TableRow>
-              <TableHead className="px-6 font-bold uppercase tracking-wider text-[10px] text-muted-foreground/80">Device ID</TableHead>
-              <TableHead className="px-4 font-bold uppercase tracking-wider text-[10px] text-muted-foreground/80">Type</TableHead>
-              <TableHead className="px-4 font-bold uppercase tracking-wider text-[10px] text-muted-foreground/80">Details</TableHead>
-              <TableHead className="text-right pr-6 pl-4 font-bold uppercase tracking-wider text-[10px] text-muted-foreground/80">Timestamp</TableHead>
+            <TableRow className="bg-muted/15">
+              <TableHead className="pl-6 pr-4 font-medium text-xs text-muted-foreground border-r border-border/40 w-[260px]">Device ID</TableHead>
+              <TableHead className="px-4 font-medium text-xs text-muted-foreground border-r border-border/40 w-[130px]">Type</TableHead>
+              <TableHead className="px-4 font-medium text-xs text-muted-foreground border-r border-border/40 w-[220px]">Timestamp</TableHead>
+              <TableHead className="pr-6 pl-4 font-medium text-xs text-muted-foreground">Details</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {[...Array(5)].map((_, i) => (
-              <TableRow key={i}>
-                <TableCell className="px-6">
-                  <div className="h-4 w-32 rounded animate-pulse bg-muted/60"></div>
+              <TableRow key={i} className="border-b border-border/40">
+                <TableCell className="pl-6 pr-4 border-r border-border/40 w-[260px]">
+                  <div className="h-4 w-40 rounded animate-pulse bg-muted/60"></div>
                 </TableCell>
-                <TableCell className="px-4">
+                <TableCell className="px-4 border-r border-border/40 w-[130px]">
                   <div className="h-4 w-16 rounded animate-pulse bg-muted/60"></div>
                 </TableCell>
-                <TableCell className="px-4">
+                <TableCell className="px-4 border-r border-border/40 w-[220px]">
                   <div className="space-y-1">
-                    <div className="h-3.5 w-48 rounded animate-pulse bg-muted/60"></div>
+                    <div className="h-3.5 w-32 rounded animate-pulse bg-muted/60"></div>
                   </div>
                 </TableCell>
-                <TableCell className="text-right pr-6 pl-4">
-                  <div className="space-y-1 ml-auto w-32 flex flex-col items-end">
-                    <div className="h-3.5 w-24 rounded animate-pulse bg-muted/60"></div>
-                    <div className="h-3 w-16 rounded animate-pulse bg-muted/60"></div>
-                  </div>
+                <TableCell className="pr-6 pl-4">
+                  <div className="h-4 w-72 rounded animate-pulse bg-muted/60"></div>
                 </TableCell>
               </TableRow>
             ))}
@@ -52,7 +49,7 @@ export function EventsTable({ data, isLoading }: EventsTableProps) {
 
   if (data.events.length === 0) {
     return (
-      <div className="w-full py-16 text-center border-b border-border/50 bg-muted/5">
+      <div className="w-full py-16 text-center border border-border/60 rounded-md bg-muted/5">
         <p className="text-muted-foreground text-sm font-medium">No events found.</p>
         <p className="text-xs text-muted-foreground/70 mt-1">
           Try adjusting your filters or search criteria.
@@ -62,14 +59,14 @@ export function EventsTable({ data, isLoading }: EventsTableProps) {
   }
 
   return (
-    <div className="w-full bg-card/10">
-      <Table>
+    <div className="w-full bg-card/10 border border-border/60 rounded-md overflow-hidden">
+      <Table className="border-collapse">
         <TableHeader>
-          <TableRow>
-            <TableHead className="px-6 font-bold uppercase tracking-wider text-[10px] text-muted-foreground/80">Device ID</TableHead>
-            <TableHead className="px-4 font-bold uppercase tracking-wider text-[10px] text-muted-foreground/80">Type</TableHead>
-            <TableHead className="px-4 font-bold uppercase tracking-wider text-[10px] text-muted-foreground/80">Details</TableHead>
-            <TableHead className="text-right pr-6 pl-4 font-bold uppercase tracking-wider text-[10px] text-muted-foreground/80">Timestamp</TableHead>
+          <TableRow className="bg-muted/15">
+            <TableHead className="pl-6 pr-4 font-medium text-xs text-muted-foreground border-r border-border/40 w-[260px]">Device ID</TableHead>
+            <TableHead className="px-4 font-medium text-xs text-muted-foreground border-r border-border/40 w-[130px]">Type</TableHead>
+            <TableHead className="px-4 font-medium text-xs text-muted-foreground border-r border-border/40 w-[220px]">Timestamp</TableHead>
+            <TableHead className="pr-6 pl-4 font-medium text-xs text-muted-foreground">Details</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>

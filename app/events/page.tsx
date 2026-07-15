@@ -1,16 +1,16 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { useSearchParams } from 'next/navigation'
+import { useSearchParams, useRouter } from 'next/navigation'
 import { EventFilters, type FilterState } from '@/components/event-filters-new'
 import { EventsTable } from '@/components/events-table'
 import { ScalablePagination } from '@/components/scalable-pagination'
-import { AutoRefreshControl } from '@/components/auto-refresh-control'
 import { ProtectedLayout } from '@/components/protected-layout'
 import type { PaginatedResponse } from '@/lib/types'
 
 function EventsPageContent() {
   const searchParams = useSearchParams()
+  const router = useRouter()
   const [data, setData] = useState<PaginatedResponse>({
     events: [],
     total: 0,
@@ -24,6 +24,23 @@ function EventsPageContent() {
     startDate: '',
     endDate: '',
   })
+  const [eventTypes, setEventTypes] = useState<{ id: number; name: string }[]>([])
+
+  // Fetch event types lookup
+  useEffect(() => {
+    async function fetchEventTypes() {
+      try {
+        const response = await fetch('/api/event-types')
+        if (response.ok) {
+          const data = await response.json()
+          setEventTypes(data)
+        }
+      } catch (err) {
+        console.error('Failed to fetch event types:', err)
+      }
+    }
+    fetchEventTypes()
+  }, [])
 
   const fetchEvents = useCallback(
     async (page: number, pageSize: number, currentFilters?: FilterState) => {
@@ -63,9 +80,19 @@ function EventsPageContent() {
     [filters]
   )
 
-  const handleApplyFilters = useCallback(() => {
-    fetchEvents(1, data.pageSize, filters)
-  }, [fetchEvents, filters, data.pageSize])
+  const handleApplyFilters = useCallback((appliedFilters: FilterState) => {
+    const params = new URLSearchParams()
+    params.set('page', '1')
+    params.set('pageSize', data.pageSize.toString())
+    if (appliedFilters.search) params.set('search', appliedFilters.search)
+    if (appliedFilters.type !== 'all') params.set('type', appliedFilters.type)
+    if (appliedFilters.startDate) params.set('startDate', appliedFilters.startDate)
+    if (appliedFilters.endDate) params.set('endDate', appliedFilters.endDate)
+    
+    router.push(`/events?${params.toString()}`)
+    setFilters(appliedFilters)
+    fetchEvents(1, data.pageSize, appliedFilters)
+  }, [fetchEvents, data.pageSize, router])
 
   const handleResetFilters = useCallback(() => {
     const resetFilters = {
@@ -75,33 +102,51 @@ function EventsPageContent() {
       endDate: '',
     }
     setFilters(resetFilters)
+    router.push('/events')
     fetchEvents(1, data.pageSize, resetFilters)
-  }, [fetchEvents, data.pageSize])
+  }, [fetchEvents, data.pageSize, router])
 
-  // Initialize filters from URL
+  // Load events on mount (including initial filters from URL)
   useEffect(() => {
-    const newFilters = {
+    const initialFilters = {
       search: searchParams.get('search') || '',
       type: searchParams.get('type') || 'all',
       startDate: searchParams.get('startDate') || '',
       endDate: searchParams.get('endDate') || '',
     }
-    setFilters(newFilters)
+    setFilters(initialFilters)
+    fetchEvents(1, 25, initialFilters)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams])
-
-  // Load events on mount (default with no filters)
-  useEffect(() => {
-    fetchEvents(1, 25)
-  }, [fetchEvents])
 
   // Fetch when page or pageSize changes
   const handlePageChange = (newPage: number) => {
     setData((prev) => ({ ...prev, page: newPage }))
+    
+    const params = new URLSearchParams()
+    params.set('page', newPage.toString())
+    params.set('pageSize', data.pageSize.toString())
+    if (filters.search) params.set('search', filters.search)
+    if (filters.type !== 'all') params.set('type', filters.type)
+    if (filters.startDate) params.set('startDate', filters.startDate)
+    if (filters.endDate) params.set('endDate', filters.endDate)
+    router.push(`/events?${params.toString()}`)
+
     fetchEvents(newPage, data.pageSize)
   }
 
   const handlePageSizeChange = (newPageSize: number) => {
     setData((prev) => ({ ...prev, pageSize: newPageSize, page: 1 }))
+    
+    const params = new URLSearchParams()
+    params.set('page', '1')
+    params.set('pageSize', newPageSize.toString())
+    if (filters.search) params.set('search', filters.search)
+    if (filters.type !== 'all') params.set('type', filters.type)
+    if (filters.startDate) params.set('startDate', filters.startDate)
+    if (filters.endDate) params.set('endDate', filters.endDate)
+    router.push(`/events?${params.toString()}`)
+
     fetchEvents(1, newPageSize)
   }
 
@@ -116,16 +161,17 @@ function EventsPageContent() {
               Monitor and analyze events from wearable devices
             </p>
           </div>
-          <AutoRefreshControl onRefresh={() => fetchEvents(data.page, data.pageSize)} isLoading={isLoading} />
         </div>
       </div>
 
-      {/* Filters */}
       <EventFilters
+        filters={filters}
         onFiltersChange={setFilters}
         isLoading={isLoading}
         onApply={handleApplyFilters}
         onReset={handleResetFilters}
+        onRefresh={() => fetchEvents(data.page, data.pageSize)}
+        eventTypes={eventTypes}
       />
 
       {/* Table */}

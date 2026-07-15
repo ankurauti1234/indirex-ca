@@ -11,6 +11,9 @@ export interface Event {
   timestamp: string
   details: EventDetails
   created_at: string
+  event_types?: {
+    name: string
+  }
 }
 
 export interface DetectionDetails extends EventDetails {

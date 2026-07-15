@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
     const offset = (page - 1) * pageSize
 
     // Start building the query
-    let query = supabase.from('events').select('*', { count: 'exact' })
+    let query = supabase.from('events').select('*, event_types(name)', { count: 'exact' })
 
     // Add search filter (device_id case-insensitive partial match)
     if (search) {

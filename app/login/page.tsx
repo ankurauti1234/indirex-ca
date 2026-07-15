@@ -7,12 +7,14 @@ import { useAuth } from '@/lib/auth-context'
 import { Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 
 export default function LoginPage() {
   const router = useRouter()
   const { user, loading: authLoading } = useAuth()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [mounted, setMounted] = useState(false)
@@ -61,89 +63,94 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="relative flex min-h-screen items-center justify-center bg-background px-4 py-12 overflow-hidden">
-      {/* Ambient background decoration */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_800px_at_50%_-120px,rgba(var(--primary-rgb),0.06),transparent)] pointer-events-none" />
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(128,128,128,0.02)_1px,transparent_1px),linear-gradient(to_bottom,rgba(128,128,128,0.02)_1px,transparent_1px)] bg-[size:24px_24px] pointer-events-none" />
-      
-      <div className="relative w-full max-w-[400px] space-y-6">
-        {/* Logo and Header */}
-        <div className="space-y-4 text-center">
-          <div className="inline-flex h-11 w-11 items-center justify-center rounded-lg border border-primary/20 bg-primary/5 text-primary shadow-[0_0_15px_rgba(var(--primary-rgb),0.05)]">
-            <svg className="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M12 2L2 7l10 5 10-5-10-5z" />
-              <path d="M2 17l10 5 10-5" />
-              <path d="M2 12l10 5 10-5" />
-            </svg>
-          </div>
-          <div className="space-y-1.5">
-            <h1 className="text-2xl font-bold tracking-tight text-foreground">
-              Sign in to Indirex
-            </h1>
-            <p className="text-xs text-muted-foreground/80 max-w-[285px] mx-auto leading-normal">
-              Monitor and audit device connection and traffic events in real-time.
-            </p>
+    <div className="flex min-h-screen flex-col items-center justify-center bg-background px-4 select-none relative">
+      {/* Abstract background ambient glow */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-72 h-72 rounded-full bg-primary/5 blur-[90px] pointer-events-none" />
+
+      {/* Main card */}
+      <div className="w-full max-w-[400px] space-y-6 relative z-10">
+        {/* Branding & Logo Header */}
+        <div className="flex flex-col gap-2 text-left pb-2 w-full">
+          <div className="space-y-1 mt-1">
+            <h1 className="text-xl font-semibold tracking-tight text-foreground">Sign in to Indirex</h1>
+            <p className="text-xs text-muted-foreground">Enter your credentials below to access your account</p>
           </div>
         </div>
 
-        {/* Card */}
-        <div className="rounded-[var(--radius)] border border-border/80 bg-card p-6 shadow-md md:p-8">
-          <form onSubmit={handleLogin} className="space-y-4">
-            {/* Email */}
-            <div className="space-y-1.5">
-              <label htmlFor="email" className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/80">
-                Email Address
-              </label>
-              <Input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="you@example.com"
-                required
-                disabled={loading}
-              />
-            </div>
+        {/* Credentials Form */}
+        <form onSubmit={handleLogin} className="space-y-4">
+          {/* Email */}
+          <div className="space-y-1.5">
+            <Label htmlFor="email" className="text-xs text-muted-foreground/80 font-medium">
+              Email
+            </Label>
+            <Input
+              id="email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="you@example.com"
+              required
+              disabled={loading}
+              className="h-9 text-sm"
+            />
+          </div>
 
-            {/* Password */}
-            <div className="space-y-1.5">
-              <label htmlFor="password" className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/80">
-                Password
-              </label>
+          {/* Password */}
+          <div className="space-y-1.5">
+            <Label htmlFor="password" className="text-xs text-muted-foreground/80 font-medium">
+              Password
+            </Label>
+            <div className="relative">
               <Input
                 id="password"
-                type="password"
+                type={showPassword ? 'text' : 'password'}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
                 required
                 disabled={loading}
+                className="h-9 text-sm pr-9"
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground/50 hover:text-foreground transition-colors cursor-pointer"
+              >
+                {showPassword ? (
+                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                  </svg>
+                ) : (
+                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                  </svg>
+                )}
+              </button>
             </div>
+          </div>
 
-            {/* Error message */}
-            {error && (
-              <div className="rounded-[var(--radius)] bg-destructive/10 px-3.5 py-2.5 text-xs text-destructive border border-destructive/20 font-medium">
-                {error}
-              </div>
-            )}
+          {error && (
+            <div className="rounded-[var(--radius)] bg-destructive/10 px-3 py-2 text-xs text-destructive border border-destructive/20 font-medium animate-in fade-in">
+              {error}
+            </div>
+          )}
 
-            {/* Submit button */}
-            <Button
-              type="submit"
-              disabled={loading}
-              className="w-full h-10 mt-2"
-            >
-              {loading && <Loader2 className="h-4 w-4 animate-spin mr-1.5" />}
-              {loading ? 'Signing in...' : 'Sign in'}
-            </Button>
-          </form>
-        </div>
+          <Button
+            type="submit"
+            disabled={loading}
+            className="w-full h-9 "
+          >
+            {loading && <Loader2 className="h-3.5 w-3.5 animate-spin mr-1.5" />}
+            {loading ? 'Signing in...' : 'Sign in'}
+          </Button>
+        </form>
+      </div>
 
-        {/* Footer text */}
-        <p className="text-center text-[10px] text-muted-foreground/60 leading-normal max-w-[280px] mx-auto uppercase tracking-wider">
-          Demo credentials required. Contact your administrator.
-        </p>
+      {/* Centered Footer */}
+      <div className="text-[10px] text-muted-foreground/45 leading-normal text-center mt-6">
+        © {new Date().getFullYear()} Inditronics. All rights reserved.
       </div>
     </div>
   )
